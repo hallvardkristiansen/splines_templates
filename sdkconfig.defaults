@@ -1,0 +1,77 @@
+# Splines Module — ESP32-S3 sdkconfig defaults
+# ESP32-S3 Wroom-1U N8R8 (8 MB Flash, 8 MB Octal PSRAM @ 1.8 V)
+#
+# CRITICAL: Do not change the PSRAM settings without testing.
+# The N8R8 module has PSRAM running at 1.8 V in Octal mode.
+# Using QIO mode or wrong voltage causes "Guru Meditation" panics.
+
+# ── Target ───────────────────────────────────────────────────
+CONFIG_IDF_TARGET="esp32s3"
+CONFIG_IDF_TARGET_ESP32S3=y
+
+# ── PSRAM (CRITICAL) ─────────────────────────────────────────
+CONFIG_ESP32S3_SPIRAM_SUPPORT=y
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y           # MUST be Octal — do not change
+CONFIG_SPIRAM_TYPE_AUTO=y
+CONFIG_SPIRAM_SPEED_80M=y          # 80 MHz validated stable
+CONFIG_SPIRAM_USE_MALLOC=y
+CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL=4096
+CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=n
+
+# ── Flash ────────────────────────────────────────────────────
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="8MB"
+
+# ── Partition table ──────────────────────────────────────────
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+CONFIG_PARTITION_TABLE_FILENAME="partitions.csv"
+
+# ── CPU ──────────────────────────────────────────────────────
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ=240
+
+# ── FreeRTOS ─────────────────────────────────────────────────
+CONFIG_FREERTOS_HZ=1000            # 1 ms tick — required for precise CV polling
+CONFIG_FREERTOS_UNICORE=n          # Dual-core enabled
+CONFIG_FREERTOS_ENABLE_BACKWARD_COMPATIBILITY=y
+
+# ── Watchdog ─────────────────────────────────────────────────
+# Core 0 is the DSP core — watchdog must be DISABLED there (done inside dsp_task).
+# Core 1 runs UI/ADC and is monitored.
+CONFIG_ESP_TASK_WDT_INIT=y
+CONFIG_ESP_TASK_WDT_TIMEOUT_S=10
+CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU0=n   # Core 0: disabled
+CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1=y   # Core 1: enabled
+
+# ── Console ──────────────────────────────────────────────────
+# USB Serial JTAG frees GPIO43/44 for the shared SPI bus (SCK=43).
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
+
+# ── FAT filesystem ───────────────────────────────────────────
+CONFIG_WL_SECTOR_SIZE_4096=y
+CONFIG_WL_SECTOR_SIZE=4096
+CONFIG_FATFS_SECTOR_4096=y
+CONFIG_FATFS_LFN_HEAP=y
+CONFIG_FATFS_MAX_LFN=255
+
+# ── Compiler ─────────────────────────────────────────────────
+CONFIG_COMPILER_OPTIMIZATION_PERF=y
+CONFIG_COMPILER_OPTIMIZATION_ASSERTIONS_ENABLE=y
+
+# ── Logging ──────────────────────────────────────────────────
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+CONFIG_LOG_DEFAULT_LEVEL=3
+CONFIG_LOG_MAXIMUM_LEVEL=5
+
+# ── SPI / I2S ISR in IRAM (lower latency, avoids flash cache stalls) ──
+CONFIG_SPI_MASTER_ISR_IN_IRAM=y
+CONFIG_I2S_ISR_IRAM_SAFE=y
+
+# ── Heap ─────────────────────────────────────────────────────
+CONFIG_HEAP_POISONING_DISABLED=y
+CONFIG_HEAP_TRACING_OFF=y

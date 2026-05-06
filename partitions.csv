@@ -1,0 +1,18 @@
+# Splines Module — Single-app partition table (no OTA)
+#
+# Layout (8 MB flash):
+#   0x000000  Bootloader (32 KB, implicit)
+#   0x009000  NVS        (20 KB)
+#   0x010000  App        (3 MB)  — increase if firmware grows beyond ~2 MB
+#   0x310000  FAT        (~5 MB) — user files: presets, scales, wavetables
+#
+# Total: 8 MB (0x800000)
+#
+# To add OTA support later, use partitions_ota.csv from the Splines project
+# (dual 2 MB app slots + 4 MB FAT). Switching partition tables requires a
+# full flash erase: idf.py erase-flash
+#
+# Name,   Type, SubType,  Offset,   Size
+nvs,      data, nvs,      0x9000,   20K,
+app,      app,  factory,  0x10000,  3M,
+ffat,     data, fat,      0x310000, 0x4F0000,
